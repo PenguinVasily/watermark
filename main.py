@@ -1,10 +1,9 @@
-from fastapi import FastAPI, File
+from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import StreamingResponse
 from fastapi.exceptions import HTTPException
 from PIL import Image
 import io
 
-from pydantic import BaseModel
 
 from settings import *
 
@@ -50,5 +49,5 @@ app = FastAPI()
 
 
 @app.post("/{mode}")
-async def put_watermark(mode: str, image: bytes = File()):
-    return StreamingResponse(io.BytesIO(paste_watermark(image, mode.upper())), media_type='image/png')
+async def put_watermark(mode: str, image: UploadFile):
+    return StreamingResponse(io.BytesIO(paste_watermark(image.file.read(), mode.upper())), media_type=image.content_type)
