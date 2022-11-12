@@ -4,7 +4,6 @@ from fastapi.exceptions import HTTPException
 from PIL import Image
 import io
 
-from pydantic import BaseModel
 
 from settings import *
 
