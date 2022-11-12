@@ -50,5 +50,8 @@ app = FastAPI()
 
 @app.post("/{mode}")
 async def put_watermark(mode: str, image: UploadFile):
-    data = await image.read()
-    return StreamingResponse(io.BytesIO(paste_watermark(data, mode.upper())), media_type=image.content_type)
+    try:
+        data = await image.read()
+        return StreamingResponse(io.BytesIO(paste_watermark(data, mode.upper())), media_type=image.content_type)
+    except Exception as e:
+        print(e)
