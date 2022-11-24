@@ -1,6 +1,7 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, UploadFile
 from fastapi.responses import StreamingResponse
 from fastapi.exceptions import HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 import io
 
@@ -17,8 +18,6 @@ def image_to_bytes(image: Image, image_format='PNG') -> bytes:
 def paste_watermark(image: bytes, mode: str) -> bytes:
     watermark = Image.open(WATERMARK_PATH).convert('RGBA')
     editable_image = Image.open(io.BytesIO(image)).convert('RGBA')
-
-
 
     if mode == 'FILL':
         watermark.thumbnail((editable_image.width / 100 * FILL_WATERMARK_RESIZE_PERCENT,
@@ -47,9 +46,18 @@ def paste_watermark(image: bytes, mode: str) -> bytes:
 
 app = FastAPI()
 
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.post("/{mode}")
 async def put_watermark(mode: str, image: UploadFile):
     data = await image.read()
     return StreamingResponse(io.BytesIO(paste_watermark(data, mode.upper())), media_type=image.content_type)
-
